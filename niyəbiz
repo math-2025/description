@@ -1,0 +1,11 @@
+Standart Sistemlərdən Fərqimiz (AES, RSA və s.): Mövcud sistemlər güclü, lakin prinsipləri hamıya məlum olan klassik alqoritmlərə (AES, RSA) əsaslanır. 
+Biz isə proqnozlaşdırılması qeyri-mümkün olan, bir-biri ilə əlaqəsiz 5 fərqli riyazi sahəni birləşdirən hibrid və çoxqatmanlı müdafiə təqdim edirik. 
+Bu, düşmənin işini eksponensial dərəcədə çətinləşdirir.
+
+Unikallıq: Riyaziyyatın həll olunmamış problemi (Kollats), təbiətdəki xaotik nizam (spirallar) və klassik nəzəriyyələrin (Affin, sadə ədədlər)
+bu şəkildə hərbi təhlükəsizlik üçün bir araya gətirildiyi başqa bir sistem Azərbaycanda və regionda mövcud deyil.
+
+Təkcə Şifrələmə Deyil, Strateji Platforma: Bu, sadəcə bir şifrələmə layihəsi deyil. 
+Deykstra alqoritmi ilə optimal yolların hesablanması, yem hədəflərin yaradılması və komanda-kontrol funksionallığı onu tam hüquqlu, 
+unikal bir hərbi-strateji platformaya çevirir.
+
