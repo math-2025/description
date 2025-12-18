@@ -1,0 +1,6 @@
+*   **Mesajlaşma üçün 3-Addımlı Sürətli Sistem:** 
+Mesajlaşma isə real-zamanlı, yüksək həcmli data axınıdır. İstifadəçi hər hərfi yazdıqca və ya oxuduqca şifrələmə/deşifrələmə baş verməlidir. 
+Burada **sürət və effektivlik** kritikdir. 
+Bizim 3-addımlı alqoritmimiz (Affin, Modulo, Mövqe) həm simmetrik olduğu üçün çox sürətlidir, 
+həm də mövqeyə görə dəyişdiyi üçün "brute-force" (bütün variantları yoxlama) hücumlarına qarşı dayanıqlıdır. 
+Yəni, "salam" sözündəki iki "a" hərfi fərqli şifrələnir.
