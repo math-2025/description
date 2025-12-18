@@ -1,3 +1,8 @@
 Anomaliya Təsbiti: Sistem, bir hesaba eyni anda birdən çox cihazdan daxil olma cəhdini avtomatik olaraq "potensial düşmən müdaxiləsi" kimi qeydə alır.
 Gizli Monitorinq: İkinci cihazdan daxil olan şəxs heç bir xəbərdarlıq görmür və sistemin normal işlədiyini zənn edir. Lakin bu andan etibarən onun bütün fəaliyyəti (hər klik, hər baxış) arxa planda sistem tərəfindən izlənilir. Bu, bir növ "bal tələsidir" (honeypot).
 Real-Zamanlı Xəbərdarlıq: Müdaxilə baş verən anda baş komandirin panelində dərhal qırmızı xəbərdarlıq görünür. Bu xəbərdarlıqda müdaxilənin vaxtı, hədəf alınan hesab, müdaxiləçinin IP ünvanı və təxmini coğrafi mövqeyi kimi kritik məlumatlar əks olunur. Bu, komandanlığa təkcə müdafiə olunmaq deyil, həm də düşmənin kimliyi və niyyəti haqqında kəşfiyyat məlumatı toplamaq və dərhal cavab tədbirləri görmək imkanı verir.
+
+Strateji Əhəmiyyəti: Komandir "Əməliyyat Zənciri Hesabla" düyməsinə basdıqda, sistem xəritədəki hər bir "Qərargah" nişanından hər bir "Hədəf" nişanına doğru 
+ən qısa və təhlükəsiz marşrutu avtomatik hesablayır və vizual olaraq göstərir. 
+Bu, komandanlığa sadəcə vəziyyəti görmək deyil, həm də bütün mümkün hücum və ya dəstək xətlərini bir an içində analiz etmək imkanı verir. 
+Bu, reaktiv deyil, proaktiv qərarvermə üçün bir alətdir. Bu Dijkstra alqoritminin nəticəsidir.
