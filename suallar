@@ -1,0 +1,9 @@
+### 1. Toxum (Seed) nədir?
+"Toxum", riyazi alqoritmlər üçün başlanğıc nöqtəsi rolunu oynayan bir ədəddir. Bu alqoritmlər təsadüfi kimi görünən, lakin əslində tamamilə müəyyən və təkrarlanabilən bir ədədlər ardıcıllığı yaradır. Bizim sistemdə açar söz ("gizli") riyazi olaraq bir toxum ədədinə çevrilir. Eyni açar söz hər zaman eyni toxumu yaradır.
+
+### 2. Əgər şifrələmədə "təsadüfi" ədədlər istifadə edilirsə, deşifrələmə zamanı orijinal məlumat necə bərpa edilir?
+Bu, alqoritmin ən vacib hissəsidir. İstifadə edilən ədədlər həqiqi (kvant) təsadüfi deyil, **pseudo-təsadüfi** (yalançı təsadüfi) ədədlərdir. Bu o deməkdir ki:
+- **Şifrələmə zamanı:** Açar sözdən alınan toxum, müəyyən bir "təsadüfi" ədədlər ardıcıllığı yaradır (məsələn, atlama üçün sadə ədədlər, spiral üçün bucaqlar və s.).
+- **Deşifrələmə zamanı:** **Eyni açar söz** istifadə edildiyi üçün, **eyni toxum** yenidən yaranır. Bu eyni toxum, şifrələmə zamanı istifadə edilən "təsadüfi" ədədlərin **tamamilə eynisini**, eyni ardıcıllıqla yenidən yaradır.
+
+Beləliklə, deşifrələmə alqoritmi şifrələmənin hansı ədədlərlə aparıldığını dəqiq "bilir" və həmin ədədləri istifadə edərək riyazi əməliyyatları tam tərsinə çevirə bilir. Bu, prosesin tamamilə bərpaediləbilən olmasını təmin edir.
