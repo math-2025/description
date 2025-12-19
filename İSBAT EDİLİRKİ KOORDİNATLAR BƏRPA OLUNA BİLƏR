@@ -1,0 +1,71 @@
+# Alqoritmin Bərpaediləbilən Olmasının Riyazi Sübutu
+
+Bu sənəd, istifadə olunan koordinat şifrələmə alqoritminin niyə tamamilə bərpaediləbilən (reversible) olduğunu, yəni şifrələnmiş məlumatdan orijinal məlumatın dəqiq şəkildə necə geri qaytarıldığını sübut edir.
+
+**Təriflər:**
+
+-   Başlanğıc koordinatlar: `(x, y)`
+-   Şifrələmə addımları (funksiyaları): `f1`, `f2`, `f3`, `f4`, `f5`
+-   Hər addımın tərs funksiyası: `f1'`, `f2'`, `f3'`, `f4'`, `f5'`
+-   Şifrələnmiş son koordinatlar: `(a, b)`
+
+Riyazi olaraq, hər bir `f` funksiyasının tərs funksiyası `f'` ilə əlaqəsi belədir: `f'(f(x, y)) = (x, y)`. Yəni, bir koordinata funksiyanı və dərhal sonra onun tərsini tətbiq etsək, başlanğıc koordinatı geri alarıq.
+
+---
+
+### 1. Şifrələmə Prosesinin Riyazi İfadəsi
+
+Şifrələmə, başlanğıc `(x, y)` koordinatlarına funksiyaların ardıcıl tətbiqidir:
+
+-   Addım 1: `(x1, y1) = f1(x, y)`
+-   Addım 2: `(x2, y2) = f2(x1, y1)`
+-   Addım 3: `(x3, y3) = f3(x2, y2)`
+-   Addım 4: `(x4, y4) = f4(x3, y3)`
+-   Addım 5: `(a, b) = f5(x4, y4)`
+
+Bu, funksiyaların iç-içə yerləşdirilmiş formasıdır (function composition):
+
+`(a, b) = f5(f4(f3(f2(f1(x, y)))))`
+
+---
+
+### 2. Deşifrələmə Prosesinin Riyazi İfadəsi
+
+Deşifrələmə, şifrələnmiş `(a, b)` koordinatlarına tərs funksiyaların **tərs ardıcıllıqla** tətbiqidir. Yəni, ən son tətbiq olunan addımın tərsi ilk olaraq icra edilir:
+
+-   Addım 1 (Tərs): `(x4, y4) = f5'(a, b)`
+-   Addım 2 (Tərs): `(x3, y3) = f4'(x4, y4)`
+-   Addım 3 (Tərs): `(x2, y2) = f3'(x3, y3)`
+-   Addım 4 (Tərs): `(x1, y1) = f2'(x2, y2)`
+-   Addım 5 (Tərs): `(x, y) = f1'(x1, y1)`
+
+---
+
+### 3. Sübut: Bərabərliyin Yoxlanılması
+
+İndi deşifrələmənin son nəticəsinin `(x, y)` olduğunu riyazi olaraq göstərək. Bunun üçün deşifrələmənin hər addımında alınan nəticəni şifrələmənin müvafiq nəticəsi ilə əvəz edək:
+
+1.  Deşifrələmənin birinci addımını götürək:
+    `(x4, y4) = f5'(a, b)`
+    `a, b`-nin şifrələmədəki ifadəsini (`f5(x4, y4)`) yerinə qoyaq:
+    `(x4, y4) = f5'(f5(x4, y4))`
+    Funksiya və tərsinin xassəsinə görə bu, `(x4, y4)`-ə bərabərdir. Bu, birinci addımın uğurla geri alındığını göstərir.
+
+2.  Deşifrələmənin ikinci addımını götürək:
+    `(x3, y3) = f4'(x4, y4)`
+    `x4, y4`-ün şifrələmədəki ifadəsini (`f4(x3, y3)`) yerinə qoyaq:
+    `(x3, y3) = f4'(f4(x3, y3))`
+    Bu da `(x3, y3)`-ə bərabərdir.
+
+3.  Bu məntiqi bütün addımlar üçün tərs ardıcıllıqla davam etdirsək:
+    - `f3'(f3(x2, y2)) = (x2, y2)`
+    - `f2'(f2(x1, y1)) = (x1, y1)`
+    - `f1'(f1(x, y)) = (x, y)`
+
+Nəticədə, deşifrələmə prosesinin sonunda biz başlanğıc `(x, y)` koordinatlarını əldə edirik.
+
+### Nəticə
+
+Hər bir şifrələmə addımının riyazi olaraq tərsinə çevrilə bilən olması və deşifrələmə zamanı bu addımların tərs ardıcıllıqla tətbiq edilməsi səbəbindən, `(a, b)` şifrəli koordinatlarından başlanğıc `(x, y)` koordinatlarını tam və dəqiq şəkildə bərpa etmək mümkündür.
+
+**Əsas Şərt:** Bu prosesin işləməsi üçün həm şifrələmədə, həm də deşifrələmədə **eyni açar sözün** istifadəsi mütləqdir. Çünki açar sözdən yaranan "toxum" (seed) hər addımda istifadə olunan riyazi parametrlərin (məsələn, yerdəyişmə, bucaq, sadə ədədlər və s.) hər iki prosesdə eyni olmasını təmin edir. Fərqli açar söz fərqli parametrlər yaradacaq və deşifrələmə uğursuz olacaq.
