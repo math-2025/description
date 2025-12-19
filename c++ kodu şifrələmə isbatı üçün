@@ -1,0 +1,218 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+struct DerivationStep {
+    string name;
+    long double latitude;
+    long double longitude;
+    string details;
+};
+
+struct EncryptedData {
+    long double encryptedLat;
+    long double encryptedLng;
+    vector<DerivationStep> derivationSteps;
+};
+
+unsigned int createSeed(const string& key) {
+    int hash = 0;
+    for (char c : key) {
+        hash = (hash << 5) - hash + c;
+        hash |= 0;
+    }
+    return static_cast<unsigned int>(abs(hash));
+}
+
+
+// Linear Congruential Generator
+class LCG {
+private:
+    unsigned long long seed;
+public:
+    LCG(unsigned int initial_seed) : seed(initial_seed) {}
+
+    long double next() {
+        seed = (seed * 48271) % 2147483647;
+        return static_cast<long double>(seed) / 2147483647.0;
+    }
+};
+
+// 1: Collatz 
+tuple<long double, long double> collatzStep(long double lat, long double lng, unsigned int seed, bool reverse = false) {
+    long long latInt = static_cast<long long>(abs(lat));
+    long long lngInt = static_cast<long long>(abs(lng));
+    const int iterations = 5;
+
+    vector<long long> latHistory = {latInt};
+    vector<long long> lngHistory = {lngInt};
+
+    for (int i = 0; i < iterations; ++i) {
+        if (latInt % 2 == 0) {
+            latInt /= 2;
+        } else {
+            latInt = (latInt * 3) + 1;
+        }
+        latHistory.push_back(latInt);
+
+        if (lngInt % 2 == 0) {
+            lngInt /= 2;
+        } else {
+            lngInt = (lngInt * 3) + 1;
+        }
+        lngHistory.push_back(lngInt);
+    }
+    
+    long long latSum = 0;
+    for(long long val : latHistory) latSum += val;
+
+    long long lngSum = 0;
+    for(long long val : lngHistory) lngSum += val;
+
+    long double latOffset = (latSum % 10000) / 100000.0L;
+    long double lngOffset = (lngSum % 10000) / 100000.0L;
+    
+    if (reverse) {
+        return {lat - latOffset, lng + lngOffset};
+    } else {
+        return {lat + latOffset, lng - lngOffset};
+    }
+}
+
+
+// 2: Prime-Jump
+tuple<long double, long double> primeJumpStep(long double lat, long double lng, unsigned int seed, bool reverse = false) {
+    LCG random(seed);
+    const int primes[] = {17, 31, 53, 71, 97};
+    int prime1 = primes[static_cast<int>(random.next() * 5)];
+    int prime2 = primes[static_cast<int>(random.next() * 5)];
+    long double offset = (static_cast<long double>(prime1) * prime2) / 100000.0L;
+
+    if (reverse) {
+        return {lat + offset, lng - offset};
+    } else {
+        return {lat - offset, lng + offset};
+    }
+}
+
+// 3: Fibonacci Spiral
+tuple<long double, long double> fibonacciStep(long double lat, long double lng, unsigned int seed, bool reverse = false) {
+    LCG random(seed);
+    const long double GOLDEN_ANGLE = 137.5L * (M_PIl / 180.0L);
+    long double distance = random.next() * 0.02L;
+    long double angle = random.next() * 360.0L;
+
+    long double latOffset = distance * cos(angle * GOLDEN_ANGLE);
+    long double lngOffset = distance * sin(angle * GOLDEN_ANGLE);
+
+    if (reverse) {
+        return {lat - latOffset, lng - lngOffset};
+    } else {
+        return {lat + latOffset, lng + lngOffset};
+    }
+}
+
+tuple<long double, long double> affineTransformationStep(long double lat, long double lng, unsigned int seed, bool reverse = false) {
+    LCG random(seed);
+    long double a1 = 1.0L + (random.next() - 0.5L) * 0.2L;
+    long double b1 = (random.next() - 0.5L) * 0.1L;
+    long double a2 = 1.0L + (random.next() - 0.5L) * 0.2L;
+    long double b2 = (random.next() - 0.5L) * 0.1L;
+
+    if (reverse) {
+        long double det = a1 * a2 - b1 * b2;
+        if (abs(det) < 1e-12) return {lat, lng};
+        
+        long double originalLat = (a2 * lat - b1 * lng) / det;
+        long double originalLng = (a1 * lng - b2 * lat) / det;
+        
+        return {originalLat, originalLng};
+
+    } else {
+        long double newLat = a1 * lat + b1 * lng;
+        long double newLng = b2 * lat + a2 * lng;
+        return {newLat, newLng};
+    }
+}
+
+
+// 5: Logarithmic Spiral
+tuple<long double, long double> logarithmicSpiralStep(long double lat, long double lng, unsigned int seed, bool reverse = false) {
+    LCG random(seed);
+    long double a = 0.01L + random.next() * 0.01L;
+    long double b = 0.1L + random.next() * 0.1L;
+    long double theta = (random.next() * 2.0L - 1.0L) * M_PIl;
+
+    long double r = a * exp(b * theta);
+    long double latOffset = r * cos(theta);
+    long double lngOffset = r * sin(theta);
+    
+    if (reverse) {
+        return {lat - latOffset, lng - lngOffset};
+    } else {
+        return {lat + latOffset, lng + lngOffset};
+    }
+}
+
+
+EncryptedData encryptCoordinates(long double lat, long double lng, const string& key) {
+    long double currentLat = lat;
+    long double currentLng = lng;
+    unsigned int masterSeed = createSeed(key);
+
+    tie(currentLat, currentLng) = collatzStep(currentLat, currentLng, createSeed(to_string(masterSeed) + "0"));
+    tie(currentLat, currentLng) = primeJumpStep(currentLat, currentLng, createSeed(to_string(masterSeed) + "1"));
+    tie(currentLat, currentLng) = fibonacciStep(currentLat, currentLng, createSeed(to_string(masterSeed) + "2"));
+    tie(currentLat, currentLng) = affineTransformationStep(currentLat, currentLng, createSeed(to_string(masterSeed) + "3"));
+    tie(currentLat, currentLng) = logarithmicSpiralStep(currentLat, currentLng, createSeed(to_string(masterSeed) + "4"));
+
+    return {currentLat, currentLng, {}};
+}
+
+// Decryption Function
+tuple<long double, long double> decryptCoordinates(long double encryptedLat, long double encryptedLng, const string& key) {
+    long double currentLat = encryptedLat;
+    long double currentLng = encryptedLng;
+    unsigned int masterSeed = createSeed(key);
+
+    tie(currentLat, currentLng) = logarithmicSpiralStep(currentLat, currentLng, createSeed(to_string(masterSeed) + "4"), true);
+    tie(currentLat, currentLng) = affineTransformationStep(currentLat, currentLng, createSeed(to_string(masterSeed) + "3"), true);
+    tie(currentLat, currentLng) = fibonacciStep(currentLat, currentLng, createSeed(to_string(masterSeed) + "2"), true);
+    tie(currentLat, currentLng) = primeJumpStep(currentLat, currentLng, createSeed(to_string(masterSeed) + "1"), true);
+    tie(currentLat, currentLng) = collatzStep(currentLat, currentLng, createSeed(to_string(masterSeed) + "0"), true);
+    
+    return {currentLat, currentLng};
+}
+
+
+int main() {
+    int t;
+    cout << "Enter number of queries: ";
+    cin >> t;
+
+    const string key = "gizli";
+
+    for (int i = 0; i < t; ++i) {
+        int ty;
+        long double x, y;
+
+        cout << "\nQuery " << i + 1 << endl;
+        cout << "Enter type (1 for encrypt, 2 for decrypt): ";
+        cin >> ty;
+        cout << "Enter longitude (x) and latitude (y): ";
+        cin >> x >> y;
+
+        if (ty == 1) {
+            EncryptedData result = encryptCoordinates(y, x, key);
+            cout << fixed << setprecision(8);
+            cout << "Encrypted Coords -> x: " << result.encryptedLng << ", y: " << result.encryptedLat << endl;
+        } else if (ty == 2) {
+            auto [decryptedLat, decryptedLng] = decryptCoordinates(y, x, key);
+            cout << fixed << setprecision(8);
+            cout << "Decrypted Coords -> x: " << decryptedLng << ", y: " << decryptedLat << endl;
+        } else {
+            cout << "Invalid type. Please enter 1 or 2." << endl;
+        }
+    }
+
+    return 0;
+}
