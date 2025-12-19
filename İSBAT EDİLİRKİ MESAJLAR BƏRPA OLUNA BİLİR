@@ -1,0 +1,44 @@
+## Mesaj Şifrələməsinin Sübutu
+
+Mesaj şifrələməsi də eyni prinsiplə işləyir: hər bir simvol üçün tətbiq olunan hər bir riyazi əməliyyatın dəqiq bir tərsi var.
+
+**Təriflər:**
+- Orijinal simvolun ASCII kodu: `x`
+- Hər simvolun sıfırdan başlayan mövqeyi: `i`
+- Sabitlər: `a = 7`, `b = 13`, `m = 256`
+- `a`-nın modulyar tərsi: `a_inv = 183` (yəni `(183 * 7) % 256 = 1`)
+- Şifrələnmiş dəyər: `x3`
+
+### 1. Mesaj Şifrələmə Addımları
+
+Hər bir `x` simvolu `i` mövqeyində bu addımlardan keçir:
+1.  **Affin Transformasiya:** `x1 = (a * x) + b`
+2.  **Modulyar Əməliyyat:** `x2 = x1 % m`
+3.  **Mövqe Qarışdırması:** `x3 = x2 + (i * i)`
+
+### 2. Mesaj Deşifrələmə Addımları (Sübut)
+
+İndi `x3`-dən başlayaraq addımları tərsinə gedək və `x`-i necə bərpa etdiyimizi görək.
+
+1.  **Mövqe Qarışdırmasının Tərsi:**
+    *   Şifrələmə: `x3 = x2 + (i * i)`
+    *   Bu, sadə toplama əməliyyatıdır. Tərsi isə çıxmadır. `i` mövqeyi deşifrələmədə məlum olduğu üçün `x2`-ni asanlıqla tapa bilərik:
+    *   `x2 = x3 - (i * i)`
+    *   **Bərpa edildi: `x2`**
+
+2.  **Affin Transformasiya və Modulyar Əməliyyatın Tərsi:**
+    *   Şifrələmə: `x2 = ((a * x) + b) % m`
+    *   Bu addımı tərsə çevirmək üçün modulyar arifmetika qaydalarından istifadə edirik. Əvvəlcə `b` sabitini çıxırıq:
+    *   `x2 - b = (a * x) % m`
+    *   İndi `(a * x)` ifadəsindən `x`-i tapmalıyıq. Adi cəbrdə hər tərəfi `a`-ya bölərdik. Modulyar arifmetikada isə bölmə əvəzinə **modulyar tərsə vurma** (`a_inv`) istifadə olunur. `a_inv` elə bir ədəddir ki, `(a * a_inv) % m = 1` şərtini ödəyir. Bizim alqoritmimizdə `(7 * 183) % 256 = 1281 % 256 = 1` olduğundan `183` ədədi `7`-nin `256`-ya nəzərən modulyar tərsidir.
+    *   Hər tərəfi `a_inv`-ə vuraq:
+    *   `(a_inv * (x2 - b)) % m = (a_inv * a * x) % m`
+    *   `(a_inv * (x2 - b)) % m = (1 * x) % m`
+    *   `(a_inv * (x2 - b)) % m = x % m`
+    *   Simvol kodları (`x`) onsuz da `0-255` aralığında olduğu üçün `x % m = x` olur. Beləliklə, orijinal `x` bərpa edilir:
+    *   `x = (a_inv * (x2 - b)) % m`
+    *   **Bərpa edildi: `x`**
+
+### 3. Nəticə (Mesajlar üçün)
+
+Göründüyü kimi, mesaj şifrələmə alqoritmindəki hər bir addım (mövqeyə görə sürüşdürmə və affin transformasiya) riyazi olaraq tam tərsə çevrilə biləndir. Deşifrələmə funksiyası bu tərs əməliyyatları düzgün ardıcıllıqla tətbiq etdiyi üçün şifrələnmiş rəqəmlər ardıcıllığından orijinal mesajı həmişə səhvsiz şəkildə bərpa etmək mümkündür.
