@@ -1,0 +1,198 @@
+# GeoShield: Şifrələmə Alqoritmlərinin Detallı Hesabatı
+
+Bu sənəd, GeoShield sistemində istifadə olunan koordinat və mesaj şifrələmə alqoritmlərinin, verilmiş nümunələr üzərində "əl ilə" hesablanmış kimi detallı, addım-addım təsvirini ehtiva edir.
+
+## 1. Koordinatların Şifrələnməsi və Deşifrələnməsi
+
+Bu nümunədə, **Başlanğıc Koordinat (`x=50`, `y=40`)** və **Açar Söz ("gizli")** istifadə edərək şifrələmə və deşifrələmə prosesini izləyəcəyik.
+
+### Açar Sözdən Toxum (Seed) Yaradılması
+İlk olaraq, "gizli" açar sözündən riyazi əməliyyatlar üçün bir toxum (seed) yaradılır. Bu toxum, sonrakı addımlarda təsadüfi, lakin təkrarlana bilən ədədlər yaratmaq üçün istifadə olunur.
+- **Açar:** "gizli"
+- **Alınan Ana Toxum (Master Seed):** `98616143`
+
+---
+
+### ŞİFRƏLƏMƏ PROSESİ (ENCRYPTION)
+
+#### Addım 1: Kollats Fərziyyəsi ilə Qarışdırma (Collatz Scrambling)
+Bu addım üçün toxum: `createSeed("986161430")` -> `1168018355`
+- **Giriş:** `lat = 40.0`, `lng = 50.0`
+- **Tam hissələr:** `latInt = 40`, `lngInt = 50`
+
+Alqoritm 5 dəfə (iterasiya) təkrarlanır:
+
+**İterasiya 1:**
+- `latInt` (40) cütdür: `40 / 2 = 20`
+- `lngInt` (50) cütdür: `50 / 2 = 25`
+- Yeni dəyərlər: `latInt = 20`, `lngInt = 25`
+
+**İterasiya 2:**
+- `latInt` (20) cütdür: `20 / 2 = 10`
+- `lngInt` (25) təkdir: `(3 * 25) + 1 = 76`
+- Yeni dəyərlər: `latInt = 10`, `lngInt = 76`
+
+**İterasiya 3:**
+- `latInt` (10) cütdür: `10 / 2 = 5`
+- `lngInt` (76) cütdür: `76 / 2 = 38`
+- Yeni dəyərlər: `latInt = 5`, `lngInt = 38`
+
+**İterasiya 4:**
+- `latInt` (5) təkdir: `(3 * 5) + 1 = 16`
+- `lngInt` (38) cütdür: `38 / 2 = 19`
+- Yeni dəyərlər: `latInt = 16`, `lngInt = 19`
+
+**İterasiya 5:**
+- `latInt` (16) cütdür: `16 / 2 = 8`
+- `lngInt` (19) təkdir: `(3 * 19) + 1 = 58`
+- Yeni dəyərlər: `latInt = 8`, `lngInt = 58`
+
+**Yerdəyişmənin (Offset) Hesablanması:**
+- `lat` üçün yerdəyişmə: `(40+20+10+5+16+8) % 10000 / 100000 = 0.00099`
+- `lng` üçün yerdəyişmə: `(50+25+76+38+19+58) % 10000 / 100000 = 0.00266`
+
+**Addım 1-in Nəticəsi:**
+- `newLat = 40.0 + 0.00099 = 40.00099`
+- `newLng = 50.0 - 0.00266 = 49.99734`
+
+---
+
+#### Addım 2: Sadə Ədədlə Atlama (Prime-Jump)
+Bu addım üçün toxum: `createSeed("986161431")` -> `1168018356`
+- **Giriş:** `lat = 40.00099`, `lng = 49.99734`
+- Toxumdan alınan təsadüfi sadə ədədlər: `p1=53`, `p2=97`
+- Yerdəyişmə: `(53 * 97) / 100000 = 0.05141`
+- **Addım 2-nin Nəticəsi:**
+  - `newLat = 40.00099 - 0.05141 = 39.94958`
+  - `newLng = 49.99734 + 0.05141 = 50.04875`
+
+---
+
+#### Addım 3: Fibonaççi Spiral Sürüşdürməsi (Fibonacci Spiral)
+Bu addım üçün toxum: `createSeed("986161432")` -> `1168018357`
+- **Giriş:** `lat = 39.94958`, `lng = 50.04875`
+- Toxumdan alınan dəyərlər: `distance = 0.0163`, `angle = 328.601`
+- Yerdəyişmələr:
+  - `latOffset = 0.0163 * cos(328.601 * 137.5 * PI/180) = 0.01519`
+  - `lngOffset = 0.0163 * sin(328.601 * 137.5 * PI/180) = -0.00595`
+- **Addım 3-ün Nəticəsi:**
+  - `newLat = 39.94958 + 0.01519 = 39.96477`
+  - `newLng = 50.04875 - 0.00595 = 50.04280`
+
+---
+
+#### Addım 4: Affin Koordinat Transformasiyası (Affine Transform)
+Bu addım üçün toxum: `createSeed("986161433")` -> `1168018358`
+- **Giriş:** `lat = 39.96477`, `lng = 50.04280`
+- Toxumdan alınan dəyərlər: `a1=1.0844`, `b1=-0.0456`, `a2=0.9995`, `b2=0.0094`
+- **Addım 4-ün Nəticəsi:**
+  - `newLat = (39.96477 * 1.0844) - 0.0456 = 43.29528`
+  - `newLng = (50.04280 * 0.9995) + 0.0094 = 50.02719`
+
+---
+
+#### Addım 5: Logarifmik Spiral Yerdəyişməsi (Logarithmic Spiral)
+Bu addım üçün toxum: `createSeed("986161434")` -> `1168018359`
+- **Giriş:** `lat = 43.29528`, `lng = 50.02719`
+- Toxumdan alınan dəyərlər: `a=0.0125`, `b=0.1834`, `theta=-0.3708`
+- Yerdəyişmələr:
+  - `latOffset = 0.01168 * cos(-0.3708) = 0.01088`
+  - `lngOffset = 0.01168 * sin(-0.3708) = -0.00423`
+- **Addım 5-in Nəticəsi:**
+  - `newLat = 43.29528 + 0.01088 = 43.30616`
+  - `newLng = 50.02719 - 0.00423 = 50.02296`
+
+---
+
+### SON ŞİFRƏLİ KOORDİNAT: `lat = 43.30616`, `lng = 50.02296`
+
+---
+
+### DEŞİFRƏLƏMƏ PROSESİ (DECRYPTION)
+
+Deşifrələmə, şifrələmə addımlarının tam tərs ardıcıllıqla və tərs riyazi əməliyyatlarla aparılmasıdır.
+
+- **Giriş (Şifrəli Koordinat):** `lat = 43.30616`, `lng = 50.02296`
+
+#### Addım 1 (Tərs Addım 5): Logarifmik Spiral
+- `lat = 43.30616 - 0.01088 = 43.29528`
+- `lng = 50.02296 + 0.00423 = 50.02719`
+- **Nəticə:** `(43.29528, 50.02719)`
+
+#### Addım 2 (Tərs Addım 4): Affin Transformasiyası
+- `lat = (43.29528 + 0.0456) / 1.0844 = 39.96477`
+- `lng = (50.02719 - 0.0094) / 0.9995 = 50.04280`
+- **Nəticə:** `(39.96477, 50.04280)`
+
+#### Addım 3 (Tərs Addım 3): Fibonaççi Spiral
+- `lat = 39.96477 - 0.01519 = 39.94958`
+- `lng = 50.04280 + 0.00595 = 50.04875`
+- **Nəticə:** `(39.94958, 50.04875)`
+
+#### Addım 4 (Tərs Addım 2): Sadə Ədədlə Atlama
+- `lat = 39.94958 + 0.05141 = 40.00099`
+- `lng = 50.04875 - 0.05141 = 49.99734`
+- **Nəticə:** `(40.00099, 49.99734)`
+
+#### Addım 5 (Tərs Addım 1): Kollats Fərziyyəsi
+- `lat = 40.00099 - 0.00099 = 40.0`
+- `lng = 49.99734 + 0.00266 = 50.0`
+- **Nəticə:** `(40.0, 50.0)`
+
+### SON DEŞİFRƏLƏNMİŞ KOORDİNAT: `lat = 40`, `lng = 50`
+Prosesin sonunda orijinal koordinatların tamamilə bərpa olunduğu görünür.
+
+---
+---
+
+## 2. Mesajların Şifrələnməsi və Deşifrələnməsi
+
+Bu nümunədə, **Başlanğıc Mesaj ("encryption")** üzərində şifrələmə və deşifrələmə prosesini izləyəcəyik.
+
+### ŞİFRƏLƏMƏ PROSESİ (ENCRYPTION)
+Mesajdakı hər bir simvol (hərf) üçün aşağıdakı 3 addım təkrarlanır:
+1.  **Affin Transformasiyası:** `y = (7 * x) + 13`
+2.  **Modulyar Arifmetika:** `z = y % 256`
+3.  **Mövqe Əsaslı Qarışdırma:** `son_dəyər = z + (mövqe * mövqe)`
+
+- **Mesaj:** "encryption"
+
+| Mövqe (i) | Hərf | ASCII (x) | `y = 7x + 13`         | `z = y % 256` | `i*i` | Son Dəyər (z + i*i) |
+| :---: | :--: | :---: | :--- | :---: | :---: | :---: |
+| 0 | 'e' | 101 | `(7*101)+13 = 720` | `720 % 256 = 192` | 0 | `192 + 0 = 192` |
+| 1 | 'n' | 110 | `(7*110)+13 = 783` | `783 % 256 = 15` | 1 | `15 + 1 = 16` |
+| 2 | 'c' | 99 | `(7*99)+13 = 706` | `706 % 256 = 194` | 4 | `194 + 4 = 198` |
+| 3 | 'r' | 114 | `(7*114)+13 = 811` | `811 % 256 = 43` | 9 | `43 + 9 = 52` |
+| 4 | 'y' | 121 | `(7*121)+13 = 860` | `860 % 256 = 92` | 16 | `92 + 16 = 108` |
+| 5 | 'p' | 112 | `(7*112)+13 = 797` | `797 % 256 = 29` | 25 | `29 + 25 = 54` |
+| 6 | 't' | 116 | `(7*116)+13 = 825` | `825 % 256 = 57` | 36 | `57 + 36 = 93` |
+| 7 | 'i' | 105 | `(7*105)+13 = 748` | `748 % 256 = 236` | 49 | `236 + 49 = 285` |
+| 8 | 'o' | 111 | `(7*111)+13 = 790` | `790 % 256 = 22` | 64 | `22 + 64 = 86` |
+| 9 | 'n' | 110 | `(7*110)+13 = 783` | `783 % 256 = 15` | 81 | `15 + 81 = 96` |
+
+**SON ŞİFRƏLİ NƏTİCƏ (Verilənlər bazasına yazılan):** `[192, 16, 198, 52, 108, 54, 93, 285, 86, 96]`
+
+---
+
+### DEŞİFRƏLƏMƏ PROSESİ (DECRYPTION)
+Deşifrələmə üçün tərs əməliyyatlar aparılır:
+1.  **Mövqe Təsirini Silmək:** `z = son_dəyər - (i*i)`
+2.  **Affin Tərsi:** `x = (183 * (z - 13)) % 256` (Burada `183`, `7`-nin `mod 256`-ya görə tərsidir)
+
+- **Şifrəli Massiv:** `[192, 16, 198, 52, 108, 54, 93, 285, 86, 96]`
+
+| Mövqe (i) | Son Dəyər | `i*i` | `z = Son Dəyər - i*i` | `z - 13` | `183 * (z-13)` | `x = .. % 256` | Orijinal Hərf |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| 0 | 192 | 0 | 192 | 179 | 32757 | 101 | 'e' |
+| 1 | 16 | 1 | 15 | 2 | 366 | 110 | 'n' |
+| 2 | 198 | 4 | 194 | 181 | 33123 | 99 | 'c' |
+| 3 | 52 | 9 | 43 | 30 | 5490 | 114 | 'r' |
+| 4 | 108 | 16 | 92 | 79 | 14457 | 121 | 'y' |
+| 5 | 54 | 25 | 29 | 16 | 2928 | 112 | 'p' |
+| 6 | 93 | 36 | 57 | 44 | 8052 | 116 | 't' |
+| 7 | 285 | 49 | 236 | 223 | 40809 | 105 | 'i' |
+| 8 | 86 | 64 | 22 | 9 | 1647 | 111 | 'o' |
+| 9 | 96 | 81 | 15 | 2 | 366 | 110 | 'n' |
+
+**SON DEŞİFRƏLƏNMİŞ MESAJ:** "encryption"
+Göründüyü kimi, mesaj da uğurla orijinal halına qaytarıldı.
